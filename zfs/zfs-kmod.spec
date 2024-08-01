@@ -1,5 +1,7 @@
 %bcond_with     debug
 %bcond_with     debuginfo
+%global kernel_module_package_buildreqs kernel-devel kernel-abi-stablelists redhat-rpm-config kernel-rpm-macros elfutils-libelf-devel kmod
+%global kmodtool_generate_buildreqs 1
 
 Name:           zfs-kmod
 Version:        2.2.4
