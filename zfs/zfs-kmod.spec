@@ -1,23 +1,23 @@
 %bcond_with     debug
 %bcond_with     debuginfo
 
-Name:           @PACKAGE@-kmod
-Version:        @VERSION@
-Release:        @RELEASE@%{?dist}
+Name:           zfs-kmod
+Version:        2.2.4
+Release:        4%{?dist}
 
 Summary:        Kernel module(s)
 Group:          System Environment/Kernel
-License:        @ZFS_META_LICENSE@
+License:        CDDL
 URL:            https://github.com/openzfs/zfs
 BuildRequires:  %kernel_module_package_buildreqs
-Source0:        @PACKAGE@-%{version}.tar.gz
+Source0:        https://github.com/openzfs/zfs/releases/download/zfs-%{version}/zfs-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # Additional dependency information for the kmod sub-package must be specified
 # by generating a preamble text file which kmodtool can append to the spec file.
 %(/bin/echo -e "\
-Requires:       @PACKAGE@ = %{version}\n\
-Conflicts:      @PACKAGE@-dkms" > %{_sourcedir}/kmod-preamble)
+Requires:       zfs = %{version}\n\
+Conflicts:      zfs-dkms" > %{_sourcedir}/kmod-preamble)
 
 # LDFLAGS are not sanitized by arch/*/Makefile for these architectures.
 %ifarch ppc ppc64 ppc64le aarch64
@@ -27,7 +27,7 @@ Conflicts:      @PACKAGE@-dkms" > %{_sourcedir}/kmod-preamble)
 %description
 This package contains the ZFS kernel modules.
 
-%define kmod_name @PACKAGE@
+%define kmod_name zfs
 
 %kernel_module_package -n %{kmod_name} -p %{_sourcedir}/kmod-preamble
 

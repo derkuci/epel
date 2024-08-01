@@ -7,19 +7,21 @@
 # Exclude input files from mangling
 %global __brp_mangle_shebangs_exclude_from ^/usr/src/.*$
 
-%define module  @PACKAGE@
+%define module  zfs
 %define mkconf  scripts/dkms.mkconf
+%define kernel_min 3.10
+%define kernel_max 6.8
 
 Name:           %{module}-dkms
 
-Version:        @VERSION@
-Release:        @RELEASE@%{?dist}
+Version:        2.2.4
+Release:        4%{?dist}
 Summary:        Kernel module(s) (dkms)
 
 Group:          System Environment/Kernel
-License:        @ZFS_META_LICENSE@
+License:        CDDL
 URL:            https://github.com/openzfs/zfs
-Source0:        %{module}-%{version}.tar.gz
+Source0:        https://github.com/openzfs/zfs/releases/download/zfs-%{version}/zfs-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      noarch
 
@@ -30,8 +32,8 @@ Requires(preun): dkms >= 2.2.0.3
 Requires:       gcc, make, perl, diffutils
 Requires(post): gcc, make, perl, diffutils
 %if 0%{?rhel}%{?fedora}%{?mageia}%{?suse_version}%{?openEuler}
-Requires:       kernel-devel >= @ZFS_META_KVER_MIN@, kernel-devel <= @ZFS_META_KVER_MAX@.999
-Requires(post): kernel-devel >= @ZFS_META_KVER_MIN@, kernel-devel <= @ZFS_META_KVER_MAX@.999
+Requires:       kernel-devel >= %{kernel_min}, kernel-devel <= %{kernel_max}.999
+Requires(post): kernel-devel >= %{kernel_min}, kernel-devel <= %{kernel_max}.999
 Obsoletes:      spl-dkms <= %{version}
 %endif
 Provides:       %{module}-kmod = %{version}

@@ -89,15 +89,15 @@
 %endif
 %define __python_sitelib          %(%{__python} -Esc "from distutils.sysconfig import get_python_lib; print(get_python_lib())" 2>/dev/null || %{__python} -Esc "import sysconfig; print(sysconfig.get_path('purelib'))")
 
-Name:           @PACKAGE@
-Version:        @VERSION@
-Release:        @RELEASE@%{?dist}
+Name:           zfs
+Version:        2.2.4
+Release:        4%{?dist}
 Summary:        Commands to control the kernel modules and libraries
 
 Group:          System Environment/Kernel
-License:        @ZFS_META_LICENSE@
+License:        CDDL
 URL:            https://github.com/openzfs/zfs
-Source0:        %{name}-%{version}.tar.gz
+Source0:        https://github.com/openzfs/zfs/releases/download/zfs-%{version}/zfs-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires:       libzpool5%{?_isa} = %{version}-%{release}
 Requires:       libnvpair3%{?_isa} = %{version}-%{release}
