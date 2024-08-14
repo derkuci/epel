@@ -4,8 +4,8 @@
 %global kmodtool_generate_buildreqs 1
 
 Name:           zfs-kmod
-Version:        2.2.4
-Release:        4%{?dist}
+Version:        2.2.5
+Release:        1~%(uname -r | sed 's/\.[^.]*$//' | tr - \~)
 
 Summary:        Kernel module(s)
 Group:          System Environment/Kernel

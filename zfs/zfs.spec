@@ -90,8 +90,8 @@
 %define __python_sitelib          %(%{__python} -Esc "from distutils.sysconfig import get_python_lib; print(get_python_lib())" 2>/dev/null || %{__python} -Esc "import sysconfig; print(sysconfig.get_path('purelib'))")
 
 Name:           zfs
-Version:        2.2.4
-Release:        4%{?dist}
+Version:        2.2.5
+Release:        1%{?dist}
 Summary:        Commands to control the kernel modules and libraries
 
 Group:          System Environment/Kernel
