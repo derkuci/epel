@@ -10,11 +10,11 @@
 %define module  zfs
 %define mkconf  scripts/dkms.mkconf
 %define kernel_min 4.18
-%define kernel_max 6.12
+%define kernel_max 6.15
 
 Name:           %{module}-dkms
 
-Version:        2.2.7
+Version:        2.2.8
 Release:        1%{?dist}
 Summary:        Kernel module(s) (dkms)
 
@@ -31,9 +31,14 @@ Requires(post): dkms >= 2.2.0.3
 Requires(preun): dkms >= 2.2.0.3
 Requires:       gcc, make, perl, diffutils
 Requires(post): gcc, make, perl, diffutils
+
+# Hold back kernel upgrades if kernel is not supported by ZFS
 %if 0%{?rhel}%{?fedora}%{?mageia}%{?suse_version}%{?openEuler}
 Requires:       kernel-devel >= %{kernel_min}, kernel-devel <= %{kernel_max}.999
 Requires(post): kernel-devel >= %{kernel_min}, kernel-devel <= %{kernel_max}.999
+Requires:       kernel-uname-r >= %{kernel_min}, kernel-uname-r <= %{kernel_max}.999
+Requires(post): kernel-uname-r >= %{kernel_min}, kernel-uname-r <= %{kernel_max}.999
+
 Obsoletes:      spl-dkms <= %{version}
 %endif
 Provides:       %{module}-kmod = %{version}

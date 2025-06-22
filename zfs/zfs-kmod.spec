@@ -5,7 +5,7 @@
 %global kmodtool_generate_buildreqs 1
 
 Name:           zfs-kmod
-Version:        2.2.7
+Version:        2.2.8
 Release:        1%{?kernel_version_tilde}
 
 Summary:        Kernel module(s)
@@ -72,7 +72,9 @@ fi
         %{debuginfo} \
         %{?kernel_cc} \
         %{?kernel_ld} \
-        %{?kernel_llvm}
+        %{?kernel_llvm} \
+        %{?kernel_cross_compile} \
+        %{?kernel_arch}
 make %{?_smp_mflags}
 
 # Module signing (modsign)
