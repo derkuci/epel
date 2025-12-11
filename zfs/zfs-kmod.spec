@@ -5,7 +5,7 @@
 %global kmodtool_generate_buildreqs 1
 
 Name:           zfs-kmod
-Version:        2.2.8
+Version:        2.2.9
 Release:        1%{?kernel_version_tilde}
 
 Summary:        Kernel module(s)
