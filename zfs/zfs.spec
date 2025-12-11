@@ -87,10 +87,22 @@
 %define __python                  %{__use_python}
 %define __python_pkg_version      %{__use_python_pkg_version}
 %endif
-%define __python_sitelib          %(%{__python} -Esc "from distutils.sysconfig import get_python_lib; print(get_python_lib())" 2>/dev/null || %{__python} -Esc "import sysconfig; print(sysconfig.get_path('purelib'))")
+%define __python_sitelib          %(%{__python} -Esc "
+import sysconfig;
+if hasattr(sysconfig, 'get_default_scheme'):
+    scheme = sysconfig.get_default_scheme()
+else:
+    scheme = sysconfig._get_default_scheme()
+if scheme == 'posix_local':
+    scheme = 'posix_prefix'
+prefix = '%{_prefix}'
+if prefix == 'NONE':
+    prefix = '%{ac_default_prefix}'
+sitedir = sysconfig.get_path('purelib', scheme, vars={'base': prefix})
+print(sitedir);" 2>/dev/null || %{__python} -Esc "from distutils import sysconfig; print(sysconfig.get_python_lib(0,0))")
 
 Name:           zfs
-Version:        2.2.9
+Version:        2.3.5
 Release:        1%{?dist}
 Summary:        Commands to control the kernel modules and libraries
 
@@ -99,10 +111,10 @@ License:        CDDL
 URL:            https://github.com/openzfs/zfs
 Source0:        https://github.com/openzfs/zfs/releases/download/zfs-%{version}/zfs-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-Requires:       libzpool5%{?_isa} = %{version}-%{release}
+Requires:       libzpool6%{?_isa} = %{version}-%{release}
 Requires:       libnvpair3%{?_isa} = %{version}-%{release}
 Requires:       libuutil3%{?_isa} = %{version}-%{release}
-Requires:       libzfs5%{?_isa} = %{version}-%{release}
+Requires:       libzfs6%{?_isa} = %{version}-%{release}
 Requires:       %{name}-kmod = %{version}
 Provides:       %{name}-kmod-common = %{version}-%{release}
 Obsoletes:      spl <= %{version}
@@ -150,21 +162,22 @@ Requires:  sysstat
 %description
 This package contains the core ZFS command line utilities.
 
-%package -n libzpool5
+%package -n libzpool6
 Summary:        Native ZFS pool library for Linux
 Group:          System Environment/Kernel
 Obsoletes:      libzpool2 <= %{version}
 Obsoletes:      libzpool4 <= %{version}
+Obsoletes:      libzpool5 <= %{version}
 
-%description -n libzpool5
+%description -n libzpool6
 This package contains the zpool library, which provides support
 for managing zpools
 
 %if %{defined ldconfig_scriptlets}
-%ldconfig_scriptlets -n libzpool5
+%ldconfig_scriptlets -n libzpool6
 %else
-%post -n libzpool5 -p /sbin/ldconfig
-%postun -n libzpool5 -p /sbin/ldconfig
+%post -n libzpool6 -p /sbin/ldconfig
+%postun -n libzpool6 -p /sbin/ldconfig
 %endif
 
 %package -n libnvpair3
@@ -211,37 +224,39 @@ This library provides a variety of compatibility functions for OpenZFS:
 # The library version is encoded in the package name.  When updating the
 # version information it is important to add an obsoletes line below for
 # the previous version of the package.
-%package -n libzfs5
+%package -n libzfs6
 Summary:        Native ZFS filesystem library for Linux
 Group:          System Environment/Kernel
 Obsoletes:      libzfs2 <= %{version}
 Obsoletes:      libzfs4 <= %{version}
+Obsoletes:      libzfs5 <= %{version}
 
-%description -n libzfs5
+%description -n libzfs6
 This package provides support for managing ZFS filesystems
 
 %if %{defined ldconfig_scriptlets}
-%ldconfig_scriptlets -n libzfs5
+%ldconfig_scriptlets -n libzfs6
 %else
-%post -n libzfs5 -p /sbin/ldconfig
-%postun -n libzfs5 -p /sbin/ldconfig
+%post -n libzfs6 -p /sbin/ldconfig
+%postun -n libzfs6 -p /sbin/ldconfig
 %endif
 
-%package -n libzfs5-devel
+%package -n libzfs6-devel
 Summary:        Development headers
 Group:          System Environment/Kernel
-Requires:       libzfs5%{?_isa} = %{version}-%{release}
-Requires:       libzpool5%{?_isa} = %{version}-%{release}
+Requires:       libzfs6%{?_isa} = %{version}-%{release}
+Requires:       libzpool6%{?_isa} = %{version}-%{release}
 Requires:       libnvpair3%{?_isa} = %{version}-%{release}
 Requires:       libuutil3%{?_isa} = %{version}-%{release}
-Provides:       libzpool5-devel = %{version}-%{release}
+Provides:       libzpool6-devel = %{version}-%{release}
 Provides:       libnvpair3-devel = %{version}-%{release}
 Provides:       libuutil3-devel = %{version}-%{release}
 Obsoletes:      zfs-devel <= %{version}
 Obsoletes:      libzfs2-devel <= %{version}
 Obsoletes:      libzfs4-devel <= %{version}
+Obsoletes:      libzfs5-devel <= %{version}
 
-%description -n libzfs5-devel
+%description -n libzfs6-devel
 This package contains the header files needed for building additional
 applications against the ZFS libraries.
 
@@ -290,7 +305,7 @@ Summary:        Python %{python_version} wrapper for libzfs_core
 Group:          Development/Languages/Python
 License:        Apache-2.0
 BuildArch:      noarch
-Requires:       libzfs5 = %{version}-%{release}
+Requires:       libzfs6 = %{version}-%{release}
 Requires:       libnvpair3 = %{version}-%{release}
 Requires:       libffi
 Requires:       python%{__python_pkg_version}
@@ -373,7 +388,7 @@ support for unlocking datasets on user login.
 
 %if 0%{?_systemd}
     %define systemd --enable-systemd --with-systemdunitdir=%{_unitdir} --with-systemdpresetdir=%{_presetdir} --with-systemdmodulesloaddir=%{_modulesloaddir} --with-systemdgeneratordir=%{_systemdgeneratordir} --disable-sysvinit
-    %define systemd_svcs zfs-import-cache.service zfs-import-scan.service zfs-mount.service zfs-share.service zfs-zed.service zfs.target zfs-import.target zfs-volume-wait.service zfs-volumes.target
+    %define systemd_svcs zfs-import-cache.service zfs-import-scan.service zfs-mount.service zfs-mount@.service zfs-share.service zfs-zed.service zfs.target zfs-import.target zfs-volume-wait.service zfs-volumes.target
 %else
     %define systemd --enable-sysvinit --disable-systemd
 %endif
@@ -491,7 +506,6 @@ systemctl --system daemon-reload >/dev/null || true
 # Core utilities
 %{_sbindir}/*
 %{_bindir}/raidz_test
-%{_sbindir}/zgenhostid
 %{_bindir}/zvol_wait
 # Optional Python 3 scripts
 %{_bindir}/arc_summary
@@ -534,7 +548,7 @@ systemctl --system daemon-reload >/dev/null || true
 %config(noreplace) %{_bashcompletiondir}/zfs
 %config(noreplace) %{_bashcompletiondir}/zpool
 
-%files -n libzpool5
+%files -n libzpool6
 %{_libdir}/libzpool.so.*
 
 %files -n libnvpair3
@@ -543,10 +557,10 @@ systemctl --system daemon-reload >/dev/null || true
 %files -n libuutil3
 %{_libdir}/libuutil.so.*
 
-%files -n libzfs5
+%files -n libzfs6
 %{_libdir}/libzfs*.so.*
 
-%files -n libzfs5-devel
+%files -n libzfs6-devel
 %{_pkgconfigdir}/libzfs.pc
 %{_pkgconfigdir}/libzfsbootenv.pc
 %{_pkgconfigdir}/libzfs_core.pc
