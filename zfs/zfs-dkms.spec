@@ -10,11 +10,11 @@
 %define module  zfs
 %define mkconf  scripts/dkms.mkconf
 %define kernel_min 4.18
-%define kernel_max 7.0
+%define kernel_max 7.2
 
 Name:           %{module}-dkms
 
-Version:        2.3.8
+Version:        2.3.9
 Release:        1%{?dist}
 Summary:        Kernel module(s) (dkms)
 
